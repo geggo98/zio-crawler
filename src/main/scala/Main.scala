@@ -24,7 +24,10 @@ object Main extends App {
     asynchttpclient.zio.AsyncHttpClientZioBackend().flatMap { implicit zioBackend =>
       {
         for {
-          _ <- createTable.run.transact(xa)
+          _ <- createTable.run
+            .attemptSql
+            .transact(xa)
+            .absolve
           userResponse <- basicRequest.get(uri"https://api.github.com/users/geggo98/repos").send().retry(Schedule.recurs(5))
           uris = userResponse.body.toOption
             .flatMap(ujson.read(_).arrOpt).getOrElse(ArrayBuffer.empty[Value])
@@ -36,7 +39,6 @@ object Main extends App {
     }
 
   case class Repository(id : Int, name : String)
-
   def createTable: Update0 = sql"""
        |CREATE TABLE IF NOT EXISTS
        | repository (
@@ -46,5 +48,10 @@ object Main extends App {
   def insertRepository(r : Repository) =
     Update[Repository](sql"""
          |INSERT INTO reposirory VALUES (?,?) ON CONFLICT DO NOTHING
-         |""".stripMargin.toString()).withUniqueGeneratedKeys("id")(r)
+         |""".stripMargin.toString()).run(r)
+
+  def findAll =
+    sql"""
+         | SELECT id, name FROM repository
+         |""".stripMargin.query[Repository].to[List]
 }

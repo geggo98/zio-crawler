@@ -1,7 +1,7 @@
 ThisBuild / scalaVersion := "2.13.1"
 ThisBuild / organization := "de.schwetschke"
 
-lazy val hello = (project in file("."))
+lazy val zioCrawler = (project in file("."))
   .settings(
     name := "zio-crawler",
     libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.30.1",

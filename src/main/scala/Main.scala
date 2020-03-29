@@ -18,7 +18,9 @@ object Main extends App {
 
 
   def run(args: List[String]): ZIO[ZEnv, Nothing, Int] =
-    myAppLogic.fold(_ => 1, _ => 0)
+    myAppLogic.foldM(
+        e => putStrLn(s"Error: ${e}").as(1),
+        _ => ZIO.succeed(0))
 
   val myAppLogic: ZIO[Console, Throwable, Unit] =
     asynchttpclient.zio.AsyncHttpClientZioBackend().flatMap { implicit zioBackend =>

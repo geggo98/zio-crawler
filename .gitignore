@@ -1,6 +1,14 @@
+# Default Java
 *.class
 *.log
-.idea/
-project/target/
-sample.db
+# Default Scala SBT
 target/
+project/target/
+# IntelliJ
+.idea/
+# Metals, Bloop (VSCode etc.)
+.metals/
+project/metals.sbt
+.bloop/
+# Project specific
+sample.db
